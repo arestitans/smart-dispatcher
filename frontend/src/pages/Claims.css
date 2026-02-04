@@ -1,0 +1,138 @@
+.claims-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.claims-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-change {
+    font-size: 0.75rem;
+    margin-top: var(--spacing-xs);
+}
+
+.stat-change.positive {
+    color: var(--accent-green);
+}
+
+.stat-subtitle {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.filter-bar {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-input {
+    flex: 1;
+}
+
+.order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.order-id {
+    font-weight: 600;
+    color: var(--accent-yellow);
+}
+
+.product-tag {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.tech-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.tech-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.days-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.days-badge.expired {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
+
+.days-badge.urgent {
+    background: rgba(234, 179, 8, 0.2);
+    color: var(--accent-yellow);
+}
+
+.days-badge.normal {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--accent-green);
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.pagination {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.page-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.page-btn.active {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: var(--bg-primary);
+}
+
+.loading-cell {
+    text-align: center;
+    padding: var(--spacing-xl) !important;
+    color: var(--text-muted);
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+    .claims-stats {
+        grid-template-columns: 1fr;
+    }
+}
