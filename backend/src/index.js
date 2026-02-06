@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
+import usersRoutes from './routes/users.js';
 import ordersRoutes from './routes/orders.js';
 import techniciansRoutes from './routes/technicians.js';
 import claimsRoutes from './routes/claims.js';
@@ -40,6 +41,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/technicians', techniciansRoutes);
 app.use('/api/claims', claimsRoutes);

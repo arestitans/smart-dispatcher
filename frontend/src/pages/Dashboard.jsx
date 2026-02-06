@@ -13,9 +13,13 @@ const COLORS = ['#22c55e', '#eab308', '#3b82f6', '#f97316', '#8b5cf6', '#ec4899'
 export default function Dashboard() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showMap, setShowMap] = useState(false);
 
     useEffect(() => {
         loadData();
+        // Defer map rendering to after main stats load
+        const timer = setTimeout(() => setShowMap(true), 100);
+        return () => clearTimeout(timer);
     }, []);
 
     const loadData = async () => {
@@ -143,7 +147,7 @@ export default function Dashboard() {
             </div>
 
             {/* Live Tracking Map */}
-            <TechnicianMap />
+            {showMap && <TechnicianMap />}
 
             {/* Order Status Summary */}
             <div className="card order-status-card">

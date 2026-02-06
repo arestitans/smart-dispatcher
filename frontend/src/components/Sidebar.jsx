@@ -7,7 +7,8 @@ import {
     BarChart3,
     LogOut,
     Zap,
-    Upload
+    Upload,
+    Settings
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
@@ -27,6 +28,7 @@ export default function Sidebar() {
         { to: '/claims', icon: FileWarning, label: 'Claims', roles: ['admin', 'supervisor'] },
         { to: '/reports', icon: BarChart3, label: 'Reports', roles: ['admin', 'supervisor'] },
         { to: '/import', icon: Upload, label: 'Import Data', roles: ['admin', 'supervisor', 'helpdesk'] },
+        { to: '/users', icon: Settings, label: 'User Management', roles: ['admin'] },
     ];
 
     const filteredNavItems = navItems.filter(item =>

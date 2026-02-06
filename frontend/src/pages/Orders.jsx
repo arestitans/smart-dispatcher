@@ -20,6 +20,8 @@ export default function Orders() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedTechnician, setSelectedTechnician] = useState(null);
+    const [manualTechnicianId, setManualTechnicianId] = useState('');
     const [editMode, setEditMode] = useState(false);
     const [editedOrder, setEditedOrder] = useState(null);
     const [syncing, setSyncing] = useState(false);
@@ -74,6 +76,9 @@ export default function Orders() {
 
     const handleAssign = (order) => {
         setSelectedOrder(order);
+        setSelectedTechnician(null);
+        // If order already has an assignee, prefill manual input so user can reassign
+        setManualTechnicianId(order?.assignee?.id || '');
         setShowAssignModal(true);
     };
 
@@ -82,10 +87,13 @@ export default function Orders() {
             await ordersAPI.assign(selectedOrder.id, {
                 technicianId: tech.id,
                 technicianName: tech.name,
-                techChatId: tech.telegramChatId
+                techChatId: tech.telegramChatId,
+                previousAssigneeId: selectedOrder.assignee?.id || null
             });
             toast.success(`Order assigned to ${tech.name} & sent via Telegram`);
             setShowAssignModal(false);
+            setSelectedTechnician(null);
+            setManualTechnicianId('');
             loadData();
         } catch (error) {
             // Mock success with Telegram send
@@ -95,6 +103,47 @@ export default function Orders() {
             setOrders(updatedOrders);
             toast.success(`Order assigned to ${tech.name} & sent via Telegram`);
             setShowAssignModal(false);
+            setSelectedTechnician(null);
+            setManualTechnicianId('');
+        }
+    };
+
+    const handleAssignSubmit = async () => {
+        // If manual technician ID is provided, find and assign to that technician
+        if (manualTechnicianId.trim()) {
+            const tech = technicians.find(t => t.id === manualTechnicianId);
+            if (!tech) {
+                toast.error('Technician ID not found');
+                return;
+            }
+            if (tech.workload >= tech.maxWorkload) {
+                toast.error(`${tech.name} is already at maximum workload`);
+                return;
+            }
+            // If already assigned to this tech, do nothing
+            if (selectedOrder.assignee && selectedOrder.assignee.id === tech.id) {
+                toast.info('Order is already assigned to this technician');
+                setShowAssignModal(false);
+                setManualTechnicianId('');
+                return;
+            }
+            await confirmAssign(tech);
+        } 
+        // If no manual input, auto-dispatch to available technician with lowest workload
+        else {
+            // Prefer technicians other than current assignee when reassigning
+            let availableTechs = technicians.filter(t => t.workload < t.maxWorkload && t.id !== selectedOrder.assignee?.id);
+            // If none exclude-current, fall back to any available tech (including current)
+            if (availableTechs.length === 0) {
+                availableTechs = technicians.filter(t => t.workload < t.maxWorkload);
+            }
+            if (availableTechs.length === 0) {
+                toast.error('No available technicians with capacity');
+                return;
+            }
+            // Sort by workload (ascending) to get the one with lowest workload
+            const tech = availableTechs.sort((a, b) => a.workload - b.workload)[0];
+            await confirmAssign(tech);
         }
     };
 
@@ -448,43 +497,91 @@ export default function Orders() {
 
             {/* Assign Modal */}
             {showAssignModal && selectedOrder && (
-                <div className="modal-overlay" onClick={() => setShowAssignModal(false)}>
+                <div className="modal-overlay" onClick={() => {
+                    setShowAssignModal(false);
+                    setManualTechnicianId('');
+                    setSelectedTechnician(null);
+                }}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3 className="modal-title">
-                                <Send size={20} /> Assign Technician
-                            </h3>
-                            <button className="btn btn-icon" onClick={() => setShowAssignModal(false)}>×</button>
+                            <div>
+                                <h3 className="modal-title">
+                                    <Send size={20} /> {selectedOrder.assignee ? 'Reassign Technician' : 'Assign Technician'}
+                                </h3>
+                                {selectedOrder.assignee && (
+                                    <p className="modal-subtitle" style={{ marginTop: '8px', fontSize: '13px' }}>
+                                        Currently assigned to <strong>{selectedOrder.assignee.name}</strong>
+                                    </p>
+                                )}
+                            </div>
+                            <button className="btn btn-icon" onClick={() => {
+                                setShowAssignModal(false);
+                                setManualTechnicianId('');
+                                setSelectedTechnician(null);
+                            }}>×</button>
                         </div>
 
                         <div className="modal-body">
                             <p className="modal-subtitle">Order: {selectedOrder.id} - {selectedOrder.customer}</p>
 
-                            <div className="section-label">Recommended Technicians</div>
-                            <p className="sort-option">Sorted by: Nearest + Rating</p>
-
-                            <div className="tech-list">
-                                {technicians.map(tech => (
-                                    <div
-                                        key={tech.id}
-                                        className={`tech-item ${tech.workload >= tech.maxWorkload ? 'full' : ''}`}
-                                        onClick={() => tech.workload < tech.maxWorkload && confirmAssign(tech)}
-                                    >
-                                        <img src={tech.photo} alt="" className="tech-photo" />
-                                        <div className="tech-info">
-                                            <span className="tech-name">{tech.name}</span>
-                                            <span className="tech-details">{tech.id} • {tech.area}</span>
+                            {/* Manual Assignment Section */}
+                            <div className="assignment-section">
+                                <div className="section-label">Manual Assignment</div>
+                                <div className="manual-input-group">
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="Enter Technician ID (e.g., TX-9021) or leave empty for auto-dispatch"
+                                        value={manualTechnicianId}
+                                        onChange={(e) => setManualTechnicianId(e.target.value)}
+                                    />
+                                    {manualTechnicianId && technicians.find(t => t.id === manualTechnicianId) && (
+                                        <div className="tech-preview">
+                                            <span className="tech-preview-name">
+                                                {technicians.find(t => t.id === manualTechnicianId).name}
+                                            </span>
                                         </div>
-                                        <span className={`tech-badge ${tech.workload < tech.maxWorkload ? 'available' : 'full'}`}>
-                                            {tech.workload}/{tech.maxWorkload} Orders
-                                        </span>
-                                    </div>
-                                ))}
+                                    )}
+                                </div>
+
+                                {/* Quick Select Buttons */}
+                                <div className="section-label" style={{ marginTop: '20px' }}>Recommended Technicians</div>
+                                <p className="sort-option">Sorted by: Nearest + Rating</p>
+
+                                <div className="tech-list">
+                                    {technicians.map(tech => (
+                                        <div
+                                            key={tech.id}
+                                            className={`tech-item ${tech.workload >= tech.maxWorkload ? 'full' : ''} ${manualTechnicianId === tech.id ? 'selected' : ''}`}
+                                            onClick={() => tech.workload < tech.maxWorkload && setManualTechnicianId(tech.id)}
+                                        >
+                                            <img src={tech.photo} alt="" className="tech-photo" />
+                                            <div className="tech-info">
+                                                <span className="tech-name">{tech.name}</span>
+                                                <span className="tech-details">{tech.id} • {tech.area}</span>
+                                            </div>
+                                            <span className={`tech-badge ${tech.workload < tech.maxWorkload ? 'available' : 'full'}`}>
+                                                {tech.workload}/{tech.maxWorkload} Orders
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
                         <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setShowAssignModal(false)}>Cancel</button>
+                            <button className="btn btn-secondary" onClick={() => {
+                                setShowAssignModal(false);
+                                setManualTechnicianId('');
+                                setSelectedTechnician(null);
+                            }}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleAssignSubmit}>
+                                {selectedOrder.assignee ? (
+                                    manualTechnicianId ? 'Reassign to ' + manualTechnicianId : 'Auto-Reassign'
+                                ) : (
+                                    manualTechnicianId ? 'Assign to ' + manualTechnicianId : 'Auto-Dispatch'
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
