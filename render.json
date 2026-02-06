@@ -1,0 +1,31 @@
+{
+  "services": [
+    {
+      "name": "smart-dispatcher-backend",
+      "runtime": "node",
+      "region": "oregon",
+      "plan": "free",
+      "healthCheckPath": "/api/health",
+      "buildCommand": "cd backend && npm install",
+      "startCommand": "cd backend && npm start",
+      "envVars": [
+        {
+          "key": "PORT",
+          "value": "3001"
+        },
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "key": "JWT_SECRET",
+          "value": "change-this-to-random-secret-in-production"
+        },
+        {
+          "key": "FRONTEND_URL",
+          "value": "https://smart-dispatcher.vercel.app"
+        }
+      ]
+    }
+  ]
+}
