@@ -8,7 +8,10 @@ Your dashboard is fully tested and ready to go live online **completely FREE**.
 
 ## 📚 Deployment Resources
 
-### Quick Start (Use This First!)
+### 🎯 NO CREDIT CARD REQUIRED (Recommended!)
+- **[DEPLOY_NO_CREDIT_CARD.md](DEPLOY_NO_CREDIT_CARD.md)** - ⭐ **START HERE! 100% Free, No Credit Card Ever!** (12 min)
+
+### Quick Start (Credit Card Required)
 - **[DEPLOY_INSTRUCTIONS.txt](DEPLOY_INSTRUCTIONS.txt)** - Step-by-step visual guide (15 min)
 
 ### Detailed Guides
@@ -26,9 +29,15 @@ Your dashboard is fully tested and ready to go live online **completely FREE**.
 
 ---
 
-## 🎯 Deploy in 3 Steps (15 minutes total)
+## 🎯 Deploy in 3 Steps (12 minutes total, NO credit card!)
 
-### Step 1: Backend to Render.com ← Start Here
+### ⭐ NEW: No Credit Card Option
+**Use Cyclic.sh + Netlify instead of Render + Vercel**
+- Cyclic.sh for backend (free, no credit card)
+- Netlify for frontend (free, no credit card)
+- See [DEPLOY_NO_CREDIT_CARD.md](DEPLOY_NO_CREDIT_CARD.md)
+
+### Step 1: Backend to Render.com ← Start Here (Credit Card Required)
 1. Go to https://render.com
 2. Create "Web Service" 
 3. Select your GitHub: `smart-dispatcher`
