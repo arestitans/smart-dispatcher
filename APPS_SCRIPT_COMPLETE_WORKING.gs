@@ -1,15 +1,8 @@
-// ==========================================
-// SMART DISPATCHER - Google Apps Script Backend
-// 100% Free, No Credit Card Needed
-// ==========================================
-
+// SMART DISPATCHER - Google Apps Script
+// Sheet ID from your Google Sheet
 const SHEET_ID = "1zBLh6vHePpqwfo05xZQfo16xY7_DNTB7vUSGPlyth_Y";
-const BOT_TOKEN = "YOUR_BOT_TOKEN"; // Optional - for Telegram
 
-// ==========================================
-// MAIN HANDLER - doGet (for Web App display)
-// ==========================================
-
+// Main function - handles web app display
 function doGet(e) {
   try {
     const action = e.parameter.action;
@@ -293,7 +286,6 @@ function getWebApp() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Dispatcher</title>
   <style>
     * {
       margin: 0;
